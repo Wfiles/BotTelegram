@@ -41,7 +41,7 @@ updater.dispatcher.add_handler(MessageHandler(Filters.text, midNight),group=3)
 updater.dispatcher.add_handler(MessageHandler(Filters.text, goodDog),group=4)
 updater.dispatcher.add_handler(MessageHandler(Filters.text, quote),group=5)
 updater.dispatcher.add_handler(MessageHandler(Filters.text, nasaPicture),group=6)
-updater.dispatcher.add_handler(CommandHandler(["help"], callback=updater))
+updater.dispatcher.add_handler(CommandHandler(["help"], help))
 updater.start_polling()
 
 print("Your telegram bot is running!")
