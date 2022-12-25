@@ -4,19 +4,24 @@ import requests
 import random
 import os
 import re
-
+import telegram
 # for now()
 import datetime
 
 # for timezone()
 import pytz
+import variables
 
-import importlib.util
 import datetime
-importlib.util.spec_from_file_location("/home/LordofSquid/.local/lib/python3.6/site-packages/pyjokes")
+
 import pyjokes
+
+from quote import quote 
+
 LI7WAK_sent_dictionnary = {}
 LI7WAK_received_dictionnary = {}
+
+quoteCounter = 0
 
 ExistingFeatures = ["ilost","li7wak","joke","trivia","time : Korea, Swiss, China, Usa","attack","quote", "nasa"]
 
@@ -24,7 +29,6 @@ def ilost(update,context) :
       #1 chance sur 1001 pour que le bot envoie j'ai perdu
       if(random.randint(0, 1000) == 4):
         update.message.reply_text("/jaiperdu")
-
 def li7wak(update, context) :
   text = update.message.text
   user_name = update.message.from_user.username
@@ -92,27 +96,29 @@ def goodDog(update, context) :
     else :
       update.message.reply_photo("https://as1.ftcdn.net/v2/jpg/02/18/58/42/1000_F_218584276_YIUjqgAUWarKchOiu81orPd4A45ZlMK9.jpg")
 
-def quote(update, context) :
-  if("quote" in update.message.text.lower()) :
-    print("hey")
-    url = "https://what-jokes.p.rapidapi.com/joke/10"
+def quotes(update, context) :
+    
+   
+    
+    chat_id = update.message.chat.id
+    print(chat_id)
+    quoteCounter = globals().get("quoteCounter")
+    es = quote("life")[quoteCounter]
+    globals().update({"quoteCounter" : quoteCounter + 1})
 
-    headers = {
-      "X-RapidAPI-Key": "eee2aa129fmshd4e913ffb9ba04ep19ab18jsn24a300b37feb",
-      "X-RapidAPI-Host": "what-jokes.p.rapidapi.com"
-    }
-
-    response = requests.request("GET", url, headers=headers)
-    update.message.reply_text(response.text)
+    if(globals().get("quoteCounter") >= len(es)) :
+       globals().update({"quoteCounter" : 0})
+    
+    update.message.reply_text(f"{es['author']} {es['book']} : {es['quote']}")
     
 def nasaPicture(update, context) :
   url = "https://api.nasa.gov/planetary/apod?api_key=uw2FrZ33412nvkO1vDyJmYMlmH7sOYdTXVgxvqXl"
   time = datetime.datetime.now(pytz.timezone('Europe/Zurich'))
-  if(time.hour == 8 and time.second == 0 or "nasa" in update.message.text.lower()) :
+  if(time.hour == 14 and time.minute == 19 and time.second == 0 or "nasa" in update.message.text.lower()) :
     text = requests.get(url).text
     array = text.split(",")
     url = array[-1][7:-3]
-
+    
     # initializing substrings
     sub1 = '"explanation":"'
     sub2 = '","hdurl":'
@@ -121,12 +127,11 @@ def nasaPicture(update, context) :
     idx1 = text.index(sub1)
     idx2 = text.index(sub2)
     explanation = text[idx1+15:idx2]
-
-    update.message.reply_photo(url)
-    update.message.reply_text(explanation)
+    variables.bot.send_photo(update.message.chat.id,url)
+    variables.bot.send_message(update.message.chat.id, explanation)
+    
 def help(update, context) :
   response = ""
   for string in ExistingFeatures :
     response = response + string + "\n"
-    
-  update.message.reply_text(response)
+
