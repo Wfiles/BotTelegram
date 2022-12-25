@@ -21,6 +21,8 @@ from quote import quote
 LI7WAK_sent_dictionnary = {}
 LI7WAK_received_dictionnary = {}
 
+
+
 quoteCounter = 0
 
 ExistingFeatures = ["ilost","li7wak","joke","trivia","time : Korea, Swiss, China, Usa","attack","quote", "nasa"]
@@ -134,4 +136,12 @@ def help(update, context) :
   response = ""
   for string in ExistingFeatures :
     response = response + string + "\n"
+def recommandation(update, context) :
+  command = "recommandation"
+  text = update.message.text
+  text = text[(len(command)+1) : (len(text))].lstrip(' ')
+  if(not(len(text) == 0)):
+    variables.bot.send_message(os.getenv('adminId'),f"{update.message.from_user.username} has sent this recommandation : {text}")
+  
+
 
