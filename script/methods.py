@@ -7,7 +7,7 @@ import re
 import telegram
 # for now()
 import datetime
-
+import json
 # for timezone()
 import pytz
 import variables
@@ -21,7 +21,7 @@ from quote import quote
 LI7WAK_sent_dictionnary = {}
 LI7WAK_received_dictionnary = {}
 
-
+fileName = "C:\\Users\\William\\BotTelegram\\script\\file.json"
 
 quoteCounter = 0
 
@@ -92,16 +92,14 @@ def midNight(update, context) :
 
 def goodDog(update, context) :
   if("attack" in update.message.text.lower()) :
-    print("hey1")
+    
     if(update.message.from_user.username == "williamjallot") :
       update.message.reply_photo("https://kultt.fr/wp-content/uploads/2018/09/Kraken-Chocolat-uai-640x360.jpg")
     else :
       update.message.reply_photo("https://as1.ftcdn.net/v2/jpg/02/18/58/42/1000_F_218584276_YIUjqgAUWarKchOiu81orPd4A45ZlMK9.jpg")
 
 def quotes(update, context) :
-    
-   
-    
+
     chat_id = update.message.chat.id
     print(chat_id)
     quoteCounter = globals().get("quoteCounter")
@@ -136,6 +134,7 @@ def help(update, context) :
   response = ""
   for string in ExistingFeatures :
     response = response + string + "\n"
+
 def recommandation(update, context) :
   command = "recommandation"
   text = update.message.text
@@ -143,5 +142,55 @@ def recommandation(update, context) :
   if(not(len(text) == 0)):
     variables.bot.send_message(os.getenv('adminId'),f"{update.message.from_user.username} has sent this recommandation : {text}")
   
+def citations(update, context) :
+  if("#citation" in update.message.text) :
+    text = update.message.text
+    cst = "#citation"
+    id = update.message.chat.id
+    citations_dictionnary = load_dict(fileName)
+    print(citations_dictionnary)
+
+    if(not(f'{id}' in citations_dictionnary)) :
+      print("boucle")
+      citations_dictionnary.update({f'{id}' : []})
+         
+    list = citations_dictionnary[f'{id}']
+    if(list == None) :
+      list = []
+
+    citation = text[0 : (len(text) - len(cst))]
+    list.append(citation)
+    print(list)
+    citations_dictionnary.update({f'{id}' : list})
+    save_dict(citations_dictionnary, fileName)
 
 
+def seeCitation(update, context) :
+  all_citations = ""
+  id = update.message.chat.id
+  citations_dictionnary = load_dict(fileName)
+  print(citations_dictionnary)
+
+  idkWhatItIs = citations_dictionnary[f'{id}']
+  if(type(idkWhatItIs) == str) :
+    variables.bot.send_message(id,idkWhatItIs)
+  else :
+    for citation in citations_dictionnary[f'{id}'] :
+      all_citations = all_citations + citation + "\n"
+
+    variables.bot.send_message(id,all_citations)
+
+def save_dict(dict_, filename):
+    with open(filename, 'w') as fp:
+        json.dump(dict_, fp)
+
+# Load the dictionary from a file
+def load_dict(filename):
+    try:
+        with open(filename, 'r') as fp:
+            return json.load(fp)
+    except json.decoder.JSONDecodeError:
+      return None
+def debugCitations(update, context) :
+  if(update.message.from_user.username == "williamjallot") :
+    save_dict({}, fileName)
